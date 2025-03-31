@@ -9,7 +9,7 @@ export default function EmotionCaptureWebsocket() {
 
     useEffect(() => {
         // Open WebSocket
-        ws.current = new WebSocket('ws://localhost:5001'); // match your backend
+        ws.current = new WebSocket('ws://localhost:8000/ws/emotion'); // match your backend
         ws.current.onmessage = (msg) => {
             const data = JSON.parse(msg.data);
             setEmotion(data?.dominant_emotion || 'Unknown');
@@ -28,14 +28,14 @@ export default function EmotionCaptureWebsocket() {
             }
 
             const interval = setInterval(() => {
-                captureAndSendFrame(stream);
+                captureAndSendFrame();
             }, 1000); // every second
 
             return () => clearInterval(interval);
         });
     }, []);
 
-    const captureAndSendFrame = async (stream: MediaStream) => {
+    const captureAndSendFrame = async () => {
         if (!videoRef.current || !ws.current || ws.current.readyState !== WebSocket.OPEN) return;
 
         const canvas = document.createElement('canvas');
