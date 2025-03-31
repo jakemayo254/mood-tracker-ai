@@ -9,7 +9,7 @@ declare global {
     }
 }
 
-export default function MicrophoneComponent() {
+export default function AudioCapture() {
     const [isRecording, setIsRecording] = useState(false);
     const [recordingComplete, setRecordingComplete] = useState(false);
     const [finalTranscript, setFinalTranscript] = useState("");

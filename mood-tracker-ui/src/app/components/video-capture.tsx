@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 
-export default function VideoRecorder() {
+export default function VideoCapture() {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
     const [chunks, setChunks] = useState<Blob[]>([]);
