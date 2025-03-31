@@ -7,6 +7,7 @@ export default function VideoWhisper() {
     const mediaRecorderRef = useRef(null);
     const [recording, setRecording] = useState(false);
     const [transcript, setTranscript] = useState('');
+    const [reflection, setReflection] = useState('');
     const [loading, setLoading] = useState(false);
     const [stream, setStream] = useState(null);
 
@@ -27,7 +28,7 @@ export default function VideoWhisper() {
         recorder.onstop = async () => {
             const blob = new Blob(chunks, { type: 'video/webm' });
             await uploadVideo(blob);
-            mediaStream.getTracks().forEach(track => track.stop()); // stop camera & mic
+            mediaStream.getTracks().forEach(track => track.stop());
         };
 
         recorder.start();
@@ -45,18 +46,26 @@ export default function VideoWhisper() {
         const formData = new FormData();
         formData.append('video', blob, 'recording.webm');
 
-        const response = await fetch('http://localhost:8000/transcribe', {
-            method: 'POST',
-            body: formData
-        });
+        try {
+            const response = await fetch('http://localhost:8000/transcribe', {
+                method: 'POST',
+                body: formData
+            });
 
-        const data = await response.json();
-        setTranscript(data.transcript);
-        setLoading(false);
+            const data = await response.json();
+            setTranscript(data.transcript);
+            setReflection(data.reflection);
+        } catch (error) {
+            console.error("Upload failed:", error);
+            setTranscript("❌ Failed to transcribe.");
+            setReflection("❌ No reflection available.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
-        <div className="p-4 space-y-4">
+        <div className="p-4 space-y-6">
             <video ref={videoRef} autoPlay muted className="w-full max-w-md border rounded" />
 
             {!recording ? (
@@ -69,10 +78,20 @@ export default function VideoWhisper() {
                 </button>
             )}
 
-            {loading ? (
-                <p className="text-gray-600">Transcribing...</p>
-            ) : (
-                transcript && <p className="whitespace-pre-wrap text-lg font-medium">📝 {transcript}</p>
+            {loading && <p className="text-gray-600">⏳ Transcribing and reflecting...</p>}
+
+            {transcript && (
+                <div>
+                    <h2 className="text-lg font-semibold">📝 Transcript</h2>
+                    <p className="whitespace-pre-wrap">{transcript}</p>
+                </div>
+            )}
+
+            {reflection && (
+                <div>
+                    <h2 className="text-lg font-semibold">🤖 Reflection</h2>
+                    <p className="whitespace-pre-wrap">{reflection}</p>
+                </div>
             )}
         </div>
     );

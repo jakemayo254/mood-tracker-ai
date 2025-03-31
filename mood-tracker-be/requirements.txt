@@ -7,3 +7,9 @@ tf-keras
 openai-whisper
 python-multipart
 ffmpeg
+chromadb
+langchain
+openai
+python-dotenv
+langchain-community
+langchain_openai
