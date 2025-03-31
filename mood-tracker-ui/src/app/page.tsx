@@ -5,6 +5,7 @@ import VideoCapture from "@/app/components/video-capture";
 import VideoCapture2 from "@/app/components/video-capture-2";
 import EmotionCapture from "@/app/components/emotion-capture";
 import EmotionCaptureWebsocket from "@/app/components/emotion-capture-websocket";
+import VideoWhisper from "@/app/components/video-whisper";
 
 export default function Home() {
   return (
@@ -14,7 +15,8 @@ export default function Home() {
       {/*<VideoCapture />*/}
       {/*<VideoCapture2 />*/}
       {/*<EmotionCapture />*/}
-        <EmotionCaptureWebsocket/>
+      {/*<EmotionCaptureWebsocket/>*/}
+        <VideoWhisper />
     </div>
   );
 }

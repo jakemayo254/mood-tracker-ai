@@ -8,7 +8,7 @@ from fastapi import WebSocket
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
-async def handle_connection(websocket: WebSocket):
+async def emotion_socket(websocket: WebSocket):
     await websocket.accept()
     print("🔌 Client connected")
 

@@ -4,3 +4,6 @@ deepface
 opencv-python
 numpy
 tf-keras
+openai-whisper
+python-multipart
+ffmpeg
