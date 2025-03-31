@@ -1,6 +1,7 @@
 from fastapi import FastAPI, WebSocket
 from web_socket import handle_connection
 
+
 app = FastAPI()
 
 
@@ -12,6 +13,7 @@ async def root():
 @app.get("/hello/{name}")
 async def say_hello(name: str):
     return {"message": f"Hello {name}"}
+
 
 @app.websocket("/ws/emotion")
 async def websocket_emotion(websocket: WebSocket):
