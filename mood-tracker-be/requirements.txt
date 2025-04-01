@@ -13,3 +13,7 @@ openai
 python-dotenv
 langchain-community
 langchain_openai
+pydantic
+black
+flake8
+isort

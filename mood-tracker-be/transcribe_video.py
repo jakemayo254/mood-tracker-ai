@@ -1,10 +1,14 @@
-from fastapi import APIRouter, UploadFile, File
-import tempfile, shutil
+import shutil
+import tempfile
+
 import whisper
+from fastapi import APIRouter, File, UploadFile
+
 from shared import add_to_vector_store, reflect_on_user
 
 router = APIRouter()
 model = whisper.load_model("base")
+
 
 @router.post("/transcribe_video")
 async def transcribe_video(video: UploadFile = File(...)):
@@ -15,5 +19,7 @@ async def transcribe_video(video: UploadFile = File(...)):
     result = model.transcribe(tmp_path)
     transcript = result["text"]
     add_to_vector_store(transcript, metadata={"source": "video"})
-    reflection = reflect_on_user("Reflect on this new journal entry in a helpful, empathetic way.")
+    reflection = reflect_on_user(
+        "Reflect on this new journal entry in a helpful, empathetic way."
+    )
     return {"transcript": transcript, "reflection": reflection}

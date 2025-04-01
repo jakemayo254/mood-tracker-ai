@@ -1,13 +1,13 @@
-from fastapi import APIRouter, File, UploadFile
-import whisper
-import tempfile
-import shutil
 import os
+import shutil
+import tempfile
 
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
-from langchain.schema import HumanMessage
 import chromadb
+import whisper
 from dotenv import load_dotenv
+from fastapi import APIRouter, File, UploadFile
+from langchain.schema import HumanMessage
+from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 
 # Load .env file
 load_dotenv()
@@ -22,14 +22,16 @@ collection = client.get_or_create_collection(name="mood_entries")
 embedder = OpenAIEmbeddings(openai_api_key=openai_api_key)
 llm = ChatOpenAI(openai_api_key=openai_api_key, model="gpt-3.5-turbo")
 
+
 def add_to_vector_store(text: str, metadata: dict = None, entry_id: str = None):
     embedding = embedder.embed_query(text)
     collection.add(
         documents=[text],
         embeddings=[embedding],
         metadatas=[metadata or {}],
-        ids=[entry_id or f"entry_{collection.count()}"]
+        ids=[entry_id or f"entry_{collection.count()}"],
     )
+
 
 def reflect_on_user(prompt: str):
     query_embedding = embedder.embed_query(prompt)
@@ -37,10 +39,13 @@ def reflect_on_user(prompt: str):
     context = "\n---\n".join(results["documents"][0])
 
     messages = [
-        HumanMessage(content=f"Context from user's past entries:\n{context}\n\nNow respond to this prompt: {prompt}")
+        HumanMessage(
+            content=f"Context from user's past entries:\n{context}\n\nNow respond to this prompt: {prompt}"
+        )
     ]
     response = llm(messages)
     return response.content
+
 
 @router.post("/transcribe")
 async def transcribe_video(video: UploadFile = File(...)):
@@ -57,9 +62,8 @@ async def transcribe_video(video: UploadFile = File(...)):
     add_to_vector_store(transcript, metadata={"source": "video-upload"})
 
     # Reflect on the latest entry
-    chat_response = reflect_on_user("Reflect on this new journal entry in a helpful, empathetic way.")
+    chat_response = reflect_on_user(
+        "Reflect on this new journal entry in a helpful, empathetic way."
+    )
 
-    return {
-        "transcript": transcript,
-        "reflection": chat_response
-    }
+    return {"transcript": transcript, "reflection": chat_response}
