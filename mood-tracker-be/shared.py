@@ -32,7 +32,10 @@ def reflect_on_user(prompt: str):
 
     messages = [
         HumanMessage(
-            content=f"Context from user's past entries:\n{context}\n\nNow respond to this prompt: {prompt}"
+            content=(
+                f"Context from user's past entries:\n{context}\n\n"
+                f"Now respond to this prompt: {prompt}"
+            )
         )
     ]
     return llm(messages).content
