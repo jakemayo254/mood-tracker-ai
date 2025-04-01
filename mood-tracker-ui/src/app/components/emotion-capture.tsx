@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 
 export default function EmotionCapture() {
     const videoRef = useRef<HTMLVideoElement | null>(null);
-    const [emotionData, setEmotionData] = useState<any>(null);
+    const [emotionData, setEmotionData] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     // Start webcam stream

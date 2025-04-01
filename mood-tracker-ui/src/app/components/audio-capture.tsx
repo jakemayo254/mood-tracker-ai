@@ -4,8 +4,21 @@ import { useEffect, useState, useRef } from "react";
 
 // Add the webkitSpeechRecognition property to the Window interface
 declare global {
+    interface SpeechRecognition extends EventTarget {
+        continuous: boolean;
+        interimResults: boolean;
+        onresult: ((event: SpeechRecognitionEvent) => void) | null;
+        start(): void;
+        stop(): void;
+    }
+
+    interface SpeechRecognitionEvent extends Event {
+        resultIndex: number;
+        results: SpeechRecognitionResultList;
+    }
+
     interface Window {
-        webkitSpeechRecognition: any;
+        webkitSpeechRecognition: new () => SpeechRecognition;
     }
 }
 
@@ -15,7 +28,7 @@ export default function AudioCapture() {
     const [finalTranscript, setFinalTranscript] = useState("");
     const [isClient, setIsClient] = useState(false);
 
-    const recognitionRef = useRef<any>(null);
+    const recognitionRef = useRef<SpeechRecognition | null>(null);
 
     // ✅ Make sure this hook is always called
     useEffect(() => {
@@ -35,36 +48,41 @@ export default function AudioCapture() {
     if (!isClient) return null;
 
     const startRecording = () => {
-        console.log("Starting recording...");
-        setFinalTranscript("");
-        setIsRecording(true);
-
         if (!window.webkitSpeechRecognition) {
             console.error("SpeechRecognition not supported in this browser.");
             return;
         }
 
+        console.log("Starting recording...");
+        setFinalTranscript("");
+        setIsRecording(true);
+
+        // Create new recognition instance and store in ref
         recognitionRef.current = new window.webkitSpeechRecognition();
-        recognitionRef.current.continuous = true;
-        recognitionRef.current.interimResults = true;
 
-        recognitionRef.current.onresult = (event: any) => {
-            let newTranscript = "";
+        if (recognitionRef.current) {
+            recognitionRef.current.continuous = true;
+            recognitionRef.current.interimResults = true;
 
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
-                const result = event.results[i];
-                if (result.isFinal) {
-                    newTranscript += result[0].transcript + " ";
+            recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+                let newTranscript = "";
+
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    const result = event.results[i];
+                    if (result.isFinal) {
+                        newTranscript += result[0].transcript + " ";
+                    }
                 }
-            }
 
-            if (newTranscript) {
-                setFinalTranscript((prev) => prev + newTranscript);
-            }
-        };
+                if (newTranscript) {
+                    setFinalTranscript((prev) => prev + newTranscript);
+                }
+            };
 
-        recognitionRef.current.start();
+            recognitionRef.current.start();
+        }
     };
+
 
     const stopRecording = () => {
         if (recognitionRef.current) {

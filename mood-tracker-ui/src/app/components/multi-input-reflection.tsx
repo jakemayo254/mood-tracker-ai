@@ -3,9 +3,9 @@
 import React, { useRef, useState } from 'react';
 
 export default function MultiInputReflection() {
-    const videoRef = useRef(null);
-    const videoRecorderRef = useRef(null);
-    const audioRecorderRef = useRef(null);
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+    const videoRecorderRef = useRef<MediaRecorder | null>(null);
+    const audioRecorderRef = useRef<MediaRecorder | null>(null);
     const [recordingVideo, setRecordingVideo] = useState(false);
     const [recordingAudio, setRecordingAudio] = useState(false);
     const [transcript, setTranscript] = useState('');
@@ -20,33 +20,37 @@ export default function MultiInputReflection() {
 
     // VIDEO RECORDING
     const startVideoRecording = async () => {
-        const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        videoRef.current.srcObject = mediaStream;
+        if (videoRef.current) {
+            const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            videoRef.current.srcObject = mediaStream;
 
-        const recorder = new MediaRecorder(mediaStream);
-        const chunks = [];
+            const recorder = new MediaRecorder(mediaStream);
+            const chunks: Blob[] = [];
 
-        recorder.ondataavailable = (event) => {
-            if (event.data.size > 0) chunks.push(event.data);
-        };
+            recorder.ondataavailable = (event) => {
+                if (event.data.size > 0) chunks.push(event.data);
+            };
 
-        recorder.onstop = async () => {
-            const blob = new Blob(chunks, { type: 'video/webm' });
-            await uploadVideoBlob(blob);
-            mediaStream.getTracks().forEach(track => track.stop());
-        };
+            recorder.onstop = async () => {
+                const blob = new Blob(chunks, { type: 'video/webm' });
+                await uploadVideoBlob(blob);
+                mediaStream.getTracks().forEach(track => track.stop());
+            };
 
-        recorder.start();
-        videoRecorderRef.current = recorder;
-        setRecordingVideo(true);
+            recorder.start();
+            videoRecorderRef.current = recorder;
+            setRecordingVideo(true);
+        }
     };
 
     const stopVideoRecording = () => {
-        videoRecorderRef.current.stop();
+        if (videoRecorderRef.current) {
+            videoRecorderRef.current.stop();
+        }
         setRecordingVideo(false);
     };
 
-    const uploadVideoBlob = async (blob) => {
+    const uploadVideoBlob = async (blob: Blob) => {
         setLoading(true);
         const formData = new FormData();
         formData.append('video', blob, 'recording.webm');
@@ -73,7 +77,7 @@ export default function MultiInputReflection() {
         const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
         const recorder = new MediaRecorder(mediaStream);
-        const chunks = [];
+        const chunks: Blob[] = [];
 
         recorder.ondataavailable = (event) => {
             if (event.data.size > 0) chunks.push(event.data);
@@ -82,20 +86,23 @@ export default function MultiInputReflection() {
         recorder.onstop = async () => {
             const blob = new Blob(chunks, { type: 'audio/webm' });
             await uploadAudio(blob);
-            mediaStream.getTracks().forEach(track => track.stop());
+            mediaStream.getTracks().forEach((track) => track.stop());
         };
 
         recorder.start();
-        audioRecorderRef.current = recorder;
+        audioRecorderRef.current = recorder; // ✅ Always assign it
         setRecordingAudio(true);
     };
 
+
     const stopAudioRecording = () => {
-        audioRecorderRef.current.stop();
+        if (audioRecorderRef.current) {
+            audioRecorderRef.current.stop();
+        }
         setRecordingAudio(false);
     };
 
-    const uploadAudio = async (blob) => {
+    const uploadAudio = async (blob: Blob) => {
         setLoading(true);
         const formData = new FormData();
         formData.append('audio', blob, 'recording.webm');
@@ -118,9 +125,10 @@ export default function MultiInputReflection() {
     };
 
     // VIDEO UPLOAD
-    const uploadVideoFile = async (event) => {
-        const file = event.target.files[0];
+    const uploadVideoFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
         if (!file) return;
+
         setSelectedVideoName(file.name);
 
         setLoading(true);
@@ -214,7 +222,7 @@ export default function MultiInputReflection() {
             <div>
                 <h2 className="text-lg font-semibold mb-2">📝 Type Your Thoughts</h2>
                 <textarea
-                    rows="4"
+                    rows={4}
                     className="w-full p-2 border rounded"
                     value={textInput}
                     onChange={(e) => setTextInput(e.target.value)}

@@ -3,45 +3,48 @@
 import React, { useRef, useState } from 'react';
 
 export default function VideoWhisper() {
-    const videoRef = useRef(null);
-    const mediaRecorderRef = useRef(null);
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+    const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const [recording, setRecording] = useState(false);
     const [transcript, setTranscript] = useState('');
     const [reflection, setReflection] = useState('');
     const [loading, setLoading] = useState(false);
-    const [stream, setStream] = useState(null);
 
     const startRecording = async () => {
-        const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        setStream(mediaStream);
-        videoRef.current.srcObject = mediaStream;
+        if (videoRef.current) {
+            const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            videoRef.current.srcObject = mediaStream;
 
-        const recorder = new MediaRecorder(mediaStream);
-        const chunks = [];
+            const recorder = new MediaRecorder(mediaStream);
+            const chunks: Blob[] = [];
 
-        recorder.ondataavailable = (event) => {
-            if (event.data.size > 0) {
-                chunks.push(event.data);
-            }
-        };
+            recorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    chunks.push(event.data);
+                }
+            };
 
-        recorder.onstop = async () => {
-            const blob = new Blob(chunks, { type: 'video/webm' });
-            await uploadVideo(blob);
-            mediaStream.getTracks().forEach(track => track.stop());
-        };
+            recorder.onstop = async () => {
+                const blob = new Blob(chunks, { type: 'video/webm' });
+                await uploadVideo(blob);
+                mediaStream.getTracks().forEach(track => track.stop());
+            };
 
-        recorder.start();
-        mediaRecorderRef.current = recorder;
-        setRecording(true);
+            recorder.start();
+            mediaRecorderRef.current = recorder;
+            setRecording(true);
+        }
     };
 
     const stopRecording = () => {
-        mediaRecorderRef.current.stop();
+        if (mediaRecorderRef.current) {
+            mediaRecorderRef.current.stop();
+        }
+
         setRecording(false);
     };
 
-    const uploadVideo = async (blob) => {
+    const uploadVideo = async (blob: Blob) => {
         setLoading(true);
         const formData = new FormData();
         formData.append('video', blob, 'recording.webm');
