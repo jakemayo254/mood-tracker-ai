@@ -12,3 +12,6 @@ check: lint format
 autofix:
 	black .
 	isort .
+
+clean-reqs:
+	sort -u requirements.txt -o requirements.txt
