@@ -16,7 +16,7 @@ openai_api_key = os.getenv("OPENAI_API_KEY")
 # Setup
 router = APIRouter()
 model = whisper.load_model("base")
-client = chromadb.PersistentClient(path="./chroma_db")
+client = chromadb.PersistentClient(path="../chroma_db")
 collection = client.get_or_create_collection(name="mood_entries")
 
 embedder = OpenAIEmbeddings(openai_api_key=openai_api_key)

@@ -1,11 +1,11 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from submit_text import router as text_router
-from transcribe_audio import router as audio_router
-from transcribe_video import router as video_router
-from transcription_api import router as transcription_router
-from web_socket import router as emotion_socket
+from routes.submit_text import router as text_router
+from routes.transcribe_audio import router as audio_router
+from routes.transcribe_video import router as video_router
+from routes.transcription_api import router as transcription_router
+from web_sockets.web_socket import router as emotion_socket
 
 app = FastAPI()
 

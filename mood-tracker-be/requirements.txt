@@ -6,7 +6,6 @@ ffmpeg
 flake8
 isort
 langchain
-langchain-community
 langchain_openai
 numpy
 openai

@@ -15,3 +15,5 @@ autofix:
 
 clean-reqs:
 	sort -u requirements.txt -o requirements.txt
+
+clean: autofix clean-reqs

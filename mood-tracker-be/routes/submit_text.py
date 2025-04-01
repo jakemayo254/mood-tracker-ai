@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from pydantic import BaseModel
 
-from shared import add_to_vector_store, reflect_on_user
+from shared.shared import add_to_vector_store, reflect_on_user
 
 router = APIRouter()
 

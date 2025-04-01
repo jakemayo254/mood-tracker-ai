@@ -8,7 +8,7 @@ from langchain_openai import ChatOpenAI, OpenAIEmbeddings
 load_dotenv()
 openai_api_key = os.getenv("OPENAI_API_KEY")
 
-client = chromadb.PersistentClient(path="./chroma_db")
+client = chromadb.PersistentClient(path="../chroma_db")
 collection = client.get_or_create_collection(name="mood_entries")
 
 embedder = OpenAIEmbeddings(openai_api_key=openai_api_key)
